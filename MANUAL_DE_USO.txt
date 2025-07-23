@@ -1,0 +1,119 @@
+
+# Manual de Uso - Proyecto FEM Q4 Modular en Python
+
+Este proyecto implementa un análisis por el Método de los Elementos Finitos (FEM) en 2D usando elementos cuadriláteros de 4 nodos (Q4), compatible con diferentes condiciones de análisis: tensión plana (CPS4), deformación plana (CPE4) y simetría axial (CAX4).
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+FEM_Q4_Modular/
+├── input_data.json              # Parámetros del material y tipo de análisis
+├── main.py                      # Script principal que ejecuta el análisis
+├── output_data.json             # Resultados exportados (desplazamientos)
+├── Model_nodos_<caso>.sal       # Coordenadas de los nodos
+├── Model_elem_<caso>.sal        # Conectividades de los elementos
+├── Model_bc_<caso>.sal          # Condiciones de contorno
+├── Model_load_<caso>.sal        # Cargas aplicadas
+└── modules/                     # Código modular
+    ├── elements.py              # Ensamblaje FEM y matriz constitutiva
+    ├── elements_utils.py        # Cálculo de matriz B y rigidez elemental
+    ├── shape_functions.py       # Funciones de forma Q4
+    ├── postprocessing.py        # Gráficos de malla, desplazamientos y tensiones
+    └── io_utils.py              # Lectura de archivos, solver y exportación
+```
+
+---
+
+## 📘 Archivos de entrada
+
+### `input_data.json`
+
+Define los parámetros del problema:
+
+```json
+{
+    "E": 210000,
+    "nu": 0.3,
+    "type": "CPS4",
+    "problemName": "disc_r6t8"
+}
+```
+
+- `E`: Módulo de Young [MPa]
+- `nu`: Coeficiente de Poisson
+- `type`: Tipo de análisis (`CPS4`, `CPE4`, `CAX4`)
+- `problemName`: Prefijo de los archivos `.sal` del modelo
+
+---
+
+## ⚙️ Cómo correr el código
+
+1. Abrí el proyecto en **Spyder**.
+2. Asegurate de que todos los archivos `.sal` e `input_data.json` estén en el mismo directorio.
+3. Ejecutá `main.py`.
+4. Se generará `output_data.json` con los desplazamientos nodales.
+5. Se mostrarán gráficos:
+   - Malla con numeración
+   - Forma deformada
+   - Tensiones σxx, σyy, σxy
+   - Tensión de von Mises
+
+---
+
+## 🔍 Funciones por módulo
+
+### `main.py`
+- Orquesta todo el flujo: lectura de entrada, armado, solución, visualización.
+
+### `elements.py`
+- `constitutive_matrix(E, nu, type)`: Devuelve la matriz D para CPS4, CPE4, CAX4.
+- `assemble_stiffness_matrix(nodes, elements, D)`: Ensambla la matriz global K.
+
+### `elements_utils.py`
+- `compute_B_matrix(...)`: Matriz de deformación B (2x4 → 3x8).
+- `compute_element_stiffness(...)`: Matriz de rigidez elemental \( ke \).
+
+### `shape_functions.py`
+- `shape_function_Q4(xi, eta)`: Funciones de forma y derivadas en coordenadas naturales.
+
+### `io_utils.py`
+- `load_mesh_data(problemName)`: Lee nodos y elementos desde archivos `.sal`.
+- `apply_boundary_conditions(...)`: Aplica restricciones desde archivo `.sal`.
+- `apply_loads(...)`: Arma el vector de fuerzas F.
+- `solve_system(K, F, bc)`: Resuelve el sistema con restricciones.
+- `save_results(U, name)`: Guarda desplazamientos en `output_data.json`.
+
+### `postprocessing.py`
+- `plot_mesh(...)`: Dibuja malla con numeración opcional.
+- `plot_displacements(...)`: Visualiza la forma deformada.
+- `plot_stress_component(...)`: Campo de tensiones (σxx, σyy, σxy).
+- `plot_von_mises(...)`: Campo de tensión equivalente de von Mises.
+
+---
+
+## 🧪 Requisitos
+
+- Python 3.x
+- numpy
+- matplotlib
+- scipy
+
+---
+
+## ✅ Resultado esperado
+
+- Desplazamientos nodales en archivo `.json`
+- Gráficos automáticos de resultados
+
+---
+
+Para extender este código:
+- Agregar elementos Q8 en `shape_functions.py`
+- Incorporar modelos no lineales en `elements.py`
+- Exportar resultados a VTK con `meshio` o `pyvista`
+
+---
+
+© Proyecto FEM Q4 Modular - OpenAI + Jose 2025
